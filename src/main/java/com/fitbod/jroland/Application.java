@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.heroku;
+package com.fitbod.jroland;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -36,7 +36,7 @@ import java.util.Map;
 
 @Controller
 @SpringBootApplication
-public class HerokuApplication {
+public class Application {
 
   @Value("${spring.datasource.url}")
   private String dbUrl;
@@ -45,13 +45,9 @@ public class HerokuApplication {
   private DataSource dataSource;
 
   public static void main(String[] args) throws Exception {
-    SpringApplication.run(HerokuApplication.class, args);
+    SpringApplication.run(Application.class, args);
   }
 
-  @RequestMapping("/")
-  String index() {
-    return "index";
-  }
 
   @RequestMapping("/db")
   String db(Map<String, Object> model) {
