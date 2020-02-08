@@ -2,8 +2,14 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout (~{::body},'index')}">
 
 <body>
-<p th:text="${user} ?: 'Not logged in!'">anonymous</p>
-<p th:if="${user}" th:text="${user}"></p>
+<div class="container">
+    <span th:if="${username}">
+        <h3>Welcome back <span th:text="${username}"></span></h3>
+    </span>
+    <span th:unless="${username}">
+        <h3>You're not logged in yet!</h3>
+    </span>
+</div>
 <div class="jumbotron text-center">
     <div class="container">
         <a href="/" class="lang-logo">

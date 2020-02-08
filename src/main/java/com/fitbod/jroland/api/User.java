@@ -1,4 +1,4 @@
-package com.fitbod.jroland.model;
+package com.fitbod.jroland.api;
 
 import lombok.Getter;
 import lombok.Setter;

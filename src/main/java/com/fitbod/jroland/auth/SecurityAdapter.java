@@ -1,10 +1,8 @@
-package com.fitbod.jroland.config;
+package com.fitbod.jroland.auth;
 
-import com.fitbod.jroland.auth.CustomUserDetailsService;
-import com.fitbod.jroland.auth.UserAuthenticationProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,8 +11,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import static com.fitbod.jroland.util.RouteConstants.HOME;
+import static com.fitbod.jroland.util.RouteConstants.LOGIN;
+import static com.fitbod.jroland.util.RouteConstants.REGISTER;
+import static com.fitbod.jroland.util.RouteConstants.WORKOUT;
+
 @Configuration
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityAdapter extends WebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -25,14 +28,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     http
-        .authorizeRequests()
-        .antMatchers("/*", "/login*", "/register*", "/successRegister*").permitAll().and()
+        .csrf().disable()
+        .authorizeRequests().antMatchers(formatRouteName(WORKOUT)).authenticated().and()
+        .authorizeRequests().antMatchers(formatRouteName(HOME), formatRouteName(LOGIN), formatRouteName(REGISTER), "/successRegister*").permitAll().and()
         .formLogin().permitAll();
+  }
+
+  private String formatRouteName(String name) {
+    return name + "*";
   }
 
   @Bean
   public DaoAuthenticationProvider getAuthenticationProvider() {
-    final UserAuthenticationProvider authenticationProvider = new UserAuthenticationProvider();
+    final DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
     authenticationProvider.setUserDetailsService(getUserDetailsService());
     authenticationProvider.setPasswordEncoder(getPasswordEncoder());
     return authenticationProvider;
@@ -45,7 +53,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Bean
   public UserDetailsService getUserDetailsService() {
-    return new CustomUserDetailsService();
+    return new AuthUserDetailsService();
   }
 
 }
