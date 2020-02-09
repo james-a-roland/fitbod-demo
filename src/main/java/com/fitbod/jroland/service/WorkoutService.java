@@ -1,7 +1,8 @@
 package com.fitbod.jroland.service;
 
 import com.fitbod.jroland.api.Workout;
-import com.google.common.collect.ImmutableList;
+import com.fitbod.jroland.persistence.WorkoutDB;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -9,12 +10,15 @@ import java.util.List;
 @Service
 public class WorkoutService {
 
-  public List<Workout> getWorkoutsForUser(String username) {
-    return ImmutableList.of();
+  @Autowired
+  WorkoutDB workoutDB;
+
+  public List<Workout> getWorkoutsForEmail(String emailAdddress) {
+    return workoutDB.getWorkoutsForEmailAddress(emailAdddress, 0, 10);
   }
 
-  public Workout createWorkoutForUser(String username, Workout workout) {
-    return new Workout();
+  public Workout createWorkout(Workout workout) {
+    return workoutDB.createWorkout(workout);
   }
 
 }

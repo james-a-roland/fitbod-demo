@@ -2,6 +2,8 @@ package com.fitbod.jroland.controller;
 
 import com.fitbod.jroland.api.User;
 import com.fitbod.jroland.service.UserService;
+import com.fitbod.jroland.util.ControllerUtil;
+import com.fitbod.jroland.util.RouteUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,37 +15,34 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 
 @Controller
 public class UserController {
 
-  private final static User ANONYMOUS_USER = new User();
   @Autowired
   UserService userService;
 
   @Autowired
   PasswordEncoder passwordEncoder;
 
-  @GetMapping("/register")
-  public String showRegistrationForm(WebRequest request, Authentication authentication, Model model) {
-    model.addAttribute("user", ANONYMOUS_USER);
-    return "register";
+  @GetMapping(RouteUtil.REGISTER)
+  public String showRegistrationForm(Model model) {
+    ControllerUtil.writeEmptyObjectToModel(new User(), model);
+    return RouteUtil.getTemplateForRoute(RouteUtil.REGISTER);
   }
 
-  @PostMapping("/register")
-  public ModelAndView registerUserAccount(@ModelAttribute("user") @Valid User user,
-                                          BindingResult result, WebRequest request, Errors errors) {
+  @PostMapping(RouteUtil.REGISTER)
+  public String registerUserAccount(@ModelAttribute("user") @Valid User user, BindingResult result, Errors errors,
+                                    Model model) {
     //Encrypt the password ASAP for application use.
     user.setPassword(passwordEncoder.encode(user.getPassword()));
-    if (result.hasErrors()) {
-      return new ModelAndView("register", "user", ANONYMOUS_USER);
-    } else {
-      User createdUser = userService.registerNewUser(user);
-      return new ModelAndView("successRegister", "user", createdUser);
+    if (!result.hasErrors()) {
+      userService.registerNewUser(user);
+      ControllerUtil.writeUserToModel(user.getEmail(), model);
     }
+    return showRegistrationForm(model);
   }
 
 }

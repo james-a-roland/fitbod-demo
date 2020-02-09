@@ -7,15 +7,15 @@ import java.util.Optional;
 
 public class AuthenticationUtil {
 
-  public static Optional<String> getUser(Authentication authentication) {
-    if (isValidAuthentication(authentication)) {
+  public static boolean isAuthenticated(Authentication authentication) {
+    return authentication != null && authentication.isAuthenticated();
+  }
+
+  public static Optional<String> getUserEmail(Authentication authentication) {
+    if (isAuthenticated(authentication) && !StringUtils.isEmpty(authentication.getName())) {
       return Optional.ofNullable(authentication.getName());
     }
     return Optional.empty();
-  }
-
-  private static boolean isValidAuthentication(Authentication authentication) {
-    return authentication != null && authentication.isAuthenticated() && (!StringUtils.isEmpty(authentication.getName()));
   }
 
 }

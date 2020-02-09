@@ -1,5 +1,6 @@
 package com.fitbod.jroland.persistence;
 
+import com.fitbod.jroland.api.User;
 import com.fitbod.jroland.persistence.model.UserModel;
 import org.springframework.stereotype.Service;
 
@@ -12,20 +13,20 @@ public class UserDB {
 
   private Map<String, String> users = new HashMap<>();
 
-
-  public UserModel createUser(UserModel userModel) {
+  public User createUser(User user) {
+    UserModel userModel = UserModel.fromApi(user);
     users.put(userModel.getEmail(), userModel.getPassword());
-    return userModel;
+    return user;
   }
 
-  public Optional<UserModel> findByEmail(String email) {
+  public Optional<User> findByEmail(String email) {
     if (!users.containsKey(email)) {
       return Optional.empty();
     } else {
       UserModel model = new UserModel();
       model.setEmail(email);
       model.setPassword(users.get(email));
-      return Optional.of(model);
+      return Optional.of(model.toApi());
     }
   }
 

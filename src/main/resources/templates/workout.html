@@ -3,11 +3,29 @@
 
 <body>
 
-
+<div class="container">
+    <h1>Add a workout</h1>
+    <form action="/workout" th:object="${newObject}" method="POST" enctype="utf8">
+        <div>
+            <label>Date</label>
+            <input type="date" th:field="*{date}"/>
+            <p th:each="error : ${#fields.errors('date')}"
+               th:text="${error}">Validation error</p>
+        </div>
+        <div>
+            <label>Duration</label>
+            <input type="number" th:field="*{duration}"/>
+            <p th:each="error : ${#fields.errors('duration')}"
+               th:text="${error}">Validation error</p>
+        </div>
+        <button type="submit">Register</button>
+    </form>
+</div>
 <div class="container">
     <h1>Current workouts</h1>
     <ul th:each="record : ${records}">
-        <li th:text="${record}"/>
+        <li th:text="${record.date}"/>
+        <li th:text="${record.duration}"/>
     </ul>
 </div>
 
