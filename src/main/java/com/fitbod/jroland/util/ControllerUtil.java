@@ -1,6 +1,6 @@
 package com.fitbod.jroland.util;
 
-import com.fitbod.jroland.api.APIObject;
+import com.fitbod.jroland.api.ApiObject;
 import org.springframework.ui.Model;
 
 import java.util.Collection;
@@ -19,7 +19,7 @@ public class ControllerUtil {
     model.addAttribute(RECORDS_KEY, records);
   }
 
-  public static void writeEmptyObjectToModel(APIObject apiObject, Model model) {
+  public static void writeEmptyObjectToModel(ApiObject apiObject, Model model) {
     model.addAttribute(EMPTY_OBJECT_KEY, apiObject);
   }
 

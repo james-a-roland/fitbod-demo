@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static com.fitbod.jroland.util.RouteUtil.API_USER;
+import static com.fitbod.jroland.util.RouteUtil.API_WORKOUT;
 import static com.fitbod.jroland.util.RouteUtil.HOME;
 import static com.fitbod.jroland.util.RouteUtil.LOGIN;
 import static com.fitbod.jroland.util.RouteUtil.REGISTER;
@@ -27,14 +28,14 @@ public class SecurityAdapter extends WebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
-    http
-            .csrf().disable()
-            .authorizeRequests().antMatchers(formatRouteName(WORKOUT)).authenticated().and()
+    http.httpBasic().and()
+            .authorizeRequests().antMatchers(formatRouteName(WORKOUT),
+                                             formatRouteName(API_WORKOUT)).authenticated().and()
             .authorizeRequests().antMatchers(formatRouteName(HOME),
                                              formatRouteName(LOGIN),
                                              formatRouteName(REGISTER),
-                                             formatRouteName(API_USER),
-                                             "/successRegister*").permitAll().and()
+                                             formatRouteName(API_USER)).permitAll().and()
+            .csrf().disable()
             .formLogin().permitAll();
   }
 

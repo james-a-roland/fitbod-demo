@@ -14,6 +14,7 @@ public class RouteUtil {
 
   //API paths.
   public static final String API_USER = "/api/user";
+  public static final String API_WORKOUT = "/api/workout";
 
   private static final Map<String, String> ROUTE_TO_TEMPLATE_MAP = new ImmutableMap.Builder<String, String>()
           .put(HOME, "index")

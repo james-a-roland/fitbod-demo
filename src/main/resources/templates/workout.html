@@ -22,11 +22,26 @@
     </form>
 </div>
 <div class="container">
-    <h1>Current workouts</h1>
-    <ul th:each="record : ${records}">
-        <li th:text="${record.date}"/>
-        <li th:text="${record.duration}"/>
-    </ul>
+    <h1>Current Workouts</h1>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Email</th>
+            <th scope="col">Date</th>
+            <th scope="col">Duration</th>
+        </tr>
+        </thead>
+        <tbody>
+        <th:block th:each="record : ${records}">
+            <tr>
+                <td th:text="${record.email}"></td>
+                <td th:text="${record.date}"></td>
+                <td th:text="${record.duration}"></td>
+                <br>
+            </tr>
+        </th:block>
+        </tbody>
+    </table>
 </div>
 
 </body>

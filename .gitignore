@@ -28,3 +28,6 @@
 docs/gradle-getting-started
 docs/tmp
 .vscode/
+
+## Redis ##
+dump.rdb

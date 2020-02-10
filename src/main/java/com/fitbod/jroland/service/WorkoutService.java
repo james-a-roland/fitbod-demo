@@ -1,24 +1,44 @@
 package com.fitbod.jroland.service;
 
-import com.fitbod.jroland.api.Workout;
-import com.fitbod.jroland.persistence.WorkoutDB;
+import com.fitbod.jroland.api.WorkoutApi;
+import com.fitbod.jroland.persistence.model.Workout;
+import com.fitbod.jroland.persistence.repo.RedisWorkoutRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
-public class WorkoutService {
+public class WorkoutService extends PersistentService<WorkoutApi> {
 
   @Autowired
-  WorkoutDB workoutDB;
+  RedisWorkoutRepo redisWorkoutRepo;
 
-  public List<Workout> getWorkoutsForEmail(String emailAdddress) {
-    return workoutDB.getWorkoutsForEmailAddress(emailAdddress, 0, 10);
+  @Override
+  protected WorkoutApi createObject(WorkoutApi workoutApi) {
+    Workout workout = Workout.fromApi(workoutApi);
+    redisWorkoutRepo.upsert(Workout.fromApi(workoutApi));
+    workoutApi.setId(workout.getId());
+    return workoutApi;
   }
 
-  public Workout createWorkout(Workout workout) {
-    return workoutDB.createWorkout(workout);
+  @Override
+  protected Optional<WorkoutApi> getObject(String key) {
+    return redisWorkoutRepo.get(key).map(Workout::toApi);
+  }
+
+  public void delete(String key) {
+    redisWorkoutRepo.delete(key);
+  }
+
+  public List<WorkoutApi> getWorkoutsForEmail(String email, int start, int count) {
+    return redisWorkoutRepo.findByEmail(email, start, count)
+            .stream()
+            .map(Workout::toApi)
+            .filter(workout -> !workout.fetchReadError().isPresent())
+            .collect(Collectors.toList());
   }
 
 }
