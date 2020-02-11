@@ -20,7 +20,8 @@ public class BootupListener implements ApplicationListener<ContextRefreshedEvent
     defaultUser.setEmail("jr@test.com");
     defaultUser.setPassword("password1");
     try {
-      userService.create(defaultUser);
+//      Create a non-default user while debugging to avoid re-registration.
+//      userService.create(defaultUser);
     } catch (UserExistsException e) {
     }
   }
