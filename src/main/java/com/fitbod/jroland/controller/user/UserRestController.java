@@ -1,6 +1,7 @@
-package com.fitbod.jroland.controller;
+package com.fitbod.jroland.controller.user;
 
-import com.fitbod.jroland.api.UserApi;
+import com.fitbod.jroland.api.user.UserRead;
+import com.fitbod.jroland.api.user.UserWrite;
 import com.fitbod.jroland.exception.InvalidApiObjectException;
 import com.fitbod.jroland.exception.UserExistsException;
 import com.fitbod.jroland.service.UserService;
@@ -30,9 +31,9 @@ public class UserRestController {
    * Register a new user. No authentication is required.
    */
   @PostMapping
-  public ResponseEntity<Void> create(@RequestBody UserApi user, UriComponentsBuilder componentsBuilder) {
+  public ResponseEntity<Void> upsert(@RequestBody UserWrite user, UriComponentsBuilder componentsBuilder) {
     try {
-      userService.create(user);
+      userService.upsert(user);
       return ResponseEntity.ok().build();
     } catch (InvalidApiObjectException e) {
       System.out.println(e);
@@ -47,8 +48,8 @@ public class UserRestController {
    * Get the currently logged in user.
    */
   @GetMapping
-  public ResponseEntity<UserApi> getCurrentUser(Authentication authentication) {
-    Optional<UserApi> user = AuthenticationUtil.getUserEmail(authentication).flatMap(userService::get);
+  public ResponseEntity<UserRead> getCurrentUser(Authentication authentication) {
+    Optional<UserRead> user = AuthenticationUtil.getUserEmail(authentication).flatMap(userService::get);
     return ResponseEntity.of(user);
   }
 }

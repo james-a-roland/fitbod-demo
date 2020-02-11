@@ -1,42 +1,37 @@
 package com.fitbod.jroland.service;
 
-import com.fitbod.jroland.api.UserApi;
+import com.fitbod.jroland.api.user.UserRead;
+import com.fitbod.jroland.api.user.UserWrite;
 import com.fitbod.jroland.exception.UserExistsException;
 import com.fitbod.jroland.persistence.model.User;
-import com.fitbod.jroland.persistence.repo.RedisUserRepo;
+import com.fitbod.jroland.persistence.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
-public class UserService extends PersistentService<UserApi> {
+public class UserService extends PersistentService<UserRead, UserWrite> {
 
-  private final RedisUserRepo redisUserRepo;
-  private final PasswordEncoder passwordEncoder;
+  private final UserRepo userRepo;
 
   @Autowired
-  public UserService(RedisUserRepo redisUserRepo, PasswordEncoder passwordEncoder) {
-    this.redisUserRepo = redisUserRepo;
-    this.passwordEncoder = passwordEncoder;
+  public UserService(UserRepo userRepo) {
+    this.userRepo = userRepo;
   }
 
   @Override
-  protected UserApi createObject(UserApi userApi) {
-    if (getObject(userApi.getEmail()).isPresent()) {
-      throw new UserExistsException(userApi);
+  protected String upsertObject(UserWrite toUpsert) {
+    if (getObject(toUpsert.getKey()).isPresent()) {
+      throw new UserExistsException(toUpsert);
     }
-    redisUserRepo.create(User.fromApi(userApi, passwordEncoder));
 
-    //Do not return any password back to the client!
-    userApi.setPassword("");
-    return userApi;
+    return userRepo.upsert(toUpsert);
   }
 
   @Override
-  protected Optional<UserApi> getObject(String key) {
-    return redisUserRepo.get(key).map(User::toApi);
+  protected Optional<UserRead> getObject(String key) {
+    return userRepo.get(key).map(User::toReadObject).filter(UserRead::canBeRead);
   }
 
 }

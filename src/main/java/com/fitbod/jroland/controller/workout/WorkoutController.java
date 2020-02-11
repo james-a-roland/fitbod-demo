@@ -1,6 +1,7 @@
-package com.fitbod.jroland.controller;
+package com.fitbod.jroland.controller.workout;
 
-import com.fitbod.jroland.api.WorkoutApi;
+import com.fitbod.jroland.api.workout.WorkoutRead;
+import com.fitbod.jroland.api.workout.WorkoutWrite;
 import com.fitbod.jroland.service.WorkoutService;
 import com.fitbod.jroland.util.AuthenticationUtil;
 import com.fitbod.jroland.util.ControllerUtil;
@@ -37,28 +38,27 @@ public class WorkoutController {
                             Model model) {
     Optional<String> emailMaybe = AuthenticationUtil.getUserEmail(authentication);
     if (emailMaybe.isPresent()) {
-      List<WorkoutApi> workoutApis = workoutService.getWorkoutsForEmail(emailMaybe.get(),
-                                                                        start.orElse(0),
-                                                                        end.orElse(9));
+      List<WorkoutRead> workoutReads = workoutService.getWorkoutsForEmail(emailMaybe.get(),
+                                                                          start.orElse(0),
+                                                                          end.orElse(9));
       Long numWorkouts = workoutService.getTotalWorkoutsForEmail(emailMaybe.get());
 
-      ControllerUtil.writeRecordsToModel(workoutApis, model);
       ControllerUtil.writeUserToModel(emailMaybe.get(), model);
+      model.addAttribute("records", workoutReads);
       model.addAttribute("numWorkouts", numWorkouts);
     }
-    ControllerUtil.writeEmptyObjectToModel(new WorkoutApi(), model);
+    ControllerUtil.writeEmptyObjectToModel(new WorkoutWrite(), model);
     return RouteUtil.getTemplateForRoute(RouteUtil.WORKOUT);
   }
 
   @PostMapping(RouteUtil.WORKOUT)
-  public String addWorkout(@ModelAttribute("workout") @Valid WorkoutApi workoutApi,
+  public String addWorkout(@ModelAttribute("workout") @Valid WorkoutWrite workoutWrite,
                            Authentication authentication,
                            Model model) {
-    Optional<String> userMaybe = AuthenticationUtil.getUserEmail(authentication);
-    if (userMaybe.isPresent()) {
-      workoutApi.setEmail(userMaybe.get());
-      workoutService.create(workoutApi);
-    }
+    AuthenticationUtil.getUserEmail(authentication).ifPresent(email -> {
+      workoutWrite.setEmail(email);
+      workoutService.upsert(workoutWrite);
+    });
     return getWorkouts(Optional.empty(), Optional.empty(), authentication, model);
   }
 

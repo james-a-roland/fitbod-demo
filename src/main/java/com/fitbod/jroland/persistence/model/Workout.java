@@ -1,20 +1,17 @@
 package com.fitbod.jroland.persistence.model;
 
-import com.fitbod.jroland.api.WorkoutApi;
+import com.fitbod.jroland.api.workout.WorkoutRead;
+import com.fitbod.jroland.api.workout.WorkoutWrite;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
-import java.util.UUID;
 
-public class Workout implements PersistentObj {
+public class Workout implements PersistentObj<WorkoutRead, WorkoutWrite> {
 
+  @Setter
   @Getter
   private String id;
-
-  @Getter
-  @Setter
-  private String email;
 
   @Getter
   @Setter
@@ -24,22 +21,13 @@ public class Workout implements PersistentObj {
   @Setter
   private long duration;
 
-  public WorkoutApi toApi() {
-    WorkoutApi workoutApi = new WorkoutApi();
-    workoutApi.setId(id);
-    workoutApi.setEmail(email);
-    workoutApi.setDate(new Date(date));
-    workoutApi.setDuration(duration);
-    return workoutApi;
-  }
-
-  public static Workout fromApi(WorkoutApi workoutApi) {
-    Workout workout = new Workout();
-    workout.id = UUID.randomUUID().toString();
-    workout.setEmail(workoutApi.getEmail());
-    workout.setDate(workoutApi.getDate().getTime());
-    workout.setDuration(workoutApi.getDuration());
-    return workout;
+  @Override
+  public WorkoutRead toReadObject() {
+    WorkoutRead read = new WorkoutRead();
+    read.setId(id);
+    read.setDate(new Date(date));
+    read.setDuration(duration);
+    return read;
   }
 
 }

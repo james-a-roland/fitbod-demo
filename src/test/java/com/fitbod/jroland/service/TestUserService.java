@@ -1,9 +1,10 @@
 package com.fitbod.jroland.service;
 
-import com.fitbod.jroland.api.UserApi;
+import com.fitbod.jroland.api.user.UserRead;
+import com.fitbod.jroland.api.user.UserWrite;
 import com.fitbod.jroland.exception.InvalidApiObjectException;
 import com.fitbod.jroland.exception.UserExistsException;
-import com.fitbod.jroland.persistence.repo.RedisUserRepo;
+import com.fitbod.jroland.persistence.repo.UserRepo;
 import com.github.fppt.jedismock.RedisServer;
 import org.junit.After;
 import org.junit.Assert;
@@ -12,7 +13,6 @@ import org.junit.Test;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.thymeleaf.util.StringUtils;
-import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 import java.io.IOException;
@@ -29,9 +29,9 @@ public class TestUserService {
     redisServer.start();
 
     JedisPool jedisPool = new JedisPool(redisServer.getHost(), redisServer.getBindPort());
-    RedisUserRepo redisUserRepo = new RedisUserRepo(jedisPool);
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(7);
-    userService = new UserService(redisUserRepo, passwordEncoder);
+    UserRepo userRepo = new UserRepo(jedisPool, passwordEncoder);
+    userService = new UserService(userRepo);
   }
 
   @After
@@ -40,40 +40,38 @@ public class TestUserService {
   }
 
   @Test
-  public void testCreateAndGetUser() {
+  public void testUpsertAndGetUser() {
     String email = "hellouser@123.com";
-    UserApi userApi = new UserApi();
-    userApi.setEmail(email);
-    userApi.setPassword("password123");
+    UserWrite userWrite = new UserWrite();
+    userWrite.setEmail(email);
+    userWrite.setPassword("password123");
 
-    Optional<UserApi> emptyUser = userService.getObject(email);
-    Assert.assertFalse(emptyUser.isPresent());
+    Optional<UserRead> retrievedUser = userService.getObject(email);
+    Assert.assertFalse(retrievedUser.isPresent());
 
-    UserApi created = userService.create(userApi);
-    Assert.assertEquals(userApi.getEmail(), email);
-    Assert.assertTrue(StringUtils.isEmpty(created.getPassword()));
-
-    Optional<UserApi> user = userService.getObject(email);
-    Assert.assertTrue(user.isPresent());
-    Assert.assertEquals(user.get().getEmail(), email);
-    Assert.assertTrue(StringUtils.isEmpty(user.get().getPassword()));
+    String created = userService.upsert(userWrite);
+    Assert.assertTrue(StringUtils.isEmpty(userWrite.getPassword()));
+    retrievedUser = userService.getObject(email);
+    Assert.assertTrue(retrievedUser.isPresent());
+    Assert.assertEquals(retrievedUser.get().getEmail(), email);
+    Assert.assertEquals(email, created);
   }
 
   @Test
   public void testCreateUserWithExistingEmail() {
     String email = "hellouser@456.com";
 
-    UserApi userApi1 = new UserApi();
-    userApi1.setEmail(email);
-    userApi1.setPassword("password1");
-    UserApi userApi2 = new UserApi();
-    userApi2.setEmail(email);
-    userApi2.setPassword("password2");
+    UserWrite userWrite1 = new UserWrite();
+    userWrite1.setEmail(email);
+    userWrite1.setPassword("password1");
+    UserWrite userWrite2 = new UserWrite();
+    userWrite2.setEmail(email);
+    userWrite2.setPassword("password2");
 
-    userService.create(userApi1);
+    userService.upsert(userWrite1);
     boolean exceptionThrown = false;
     try {
-      userService.create(userApi2);
+      userService.upsert(userWrite2);
     } catch (UserExistsException e) {
       exceptionThrown = true;
     }
@@ -81,8 +79,10 @@ public class TestUserService {
   }
 
   @Test(expected = InvalidApiObjectException.class)
-  public void testCreateUserNullFields() {
-    UserApi invalidUser = new UserApi();
-    userService.create(invalidUser);
+  public void testCreateInvalidUser() {
+    UserWrite invalidUser = new UserWrite();
+    invalidUser.setEmail("invalid email");
+    invalidUser.setPassword("2short");
+    userService.upsert(invalidUser);
   }
 }

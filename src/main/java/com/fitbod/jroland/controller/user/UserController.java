@@ -1,6 +1,6 @@
-package com.fitbod.jroland.controller;
+package com.fitbod.jroland.controller.user;
 
-import com.fitbod.jroland.api.UserApi;
+import com.fitbod.jroland.api.user.UserWrite;
 import com.fitbod.jroland.service.UserService;
 import com.fitbod.jroland.util.ControllerUtil;
 import com.fitbod.jroland.util.RouteUtil;
@@ -19,14 +19,14 @@ public class UserController {
 
   @GetMapping(RouteUtil.REGISTER)
   public String showRegistrationForm(Model model) {
-    ControllerUtil.writeEmptyObjectToModel(new UserApi(), model);
+    ControllerUtil.writeEmptyObjectToModel(new UserWrite(), model);
     return RouteUtil.getTemplateForRoute(RouteUtil.REGISTER);
   }
 
   @PostMapping(RouteUtil.REGISTER)
-  public String registerUserAccount(@ModelAttribute("user") UserApi user, Model model) {
-    userService.create(user);
-    ControllerUtil.writeUserToModel(user.getEmail(), model);
+  public String registerUserAccount(@ModelAttribute("user") UserWrite user, Model model) {
+    userService.upsert(user);
+    ControllerUtil.writeUserToModel(user.getKey(), model);
     return showRegistrationForm(model);
   }
 

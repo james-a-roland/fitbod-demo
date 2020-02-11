@@ -1,6 +1,7 @@
 package com.fitbod.jroland.service;
 
-import com.fitbod.jroland.api.ApiObject;
+import com.fitbod.jroland.api.ApiReadObject;
+import com.fitbod.jroland.api.ApiWriteObject;
 import com.fitbod.jroland.exception.InvalidApiObjectException;
 
 import java.util.Optional;
@@ -9,34 +10,33 @@ import java.util.Optional;
  * A service containing business logic to perform some READ/WRITE operations
  * on an entity stored in an external DB.
  */
-public abstract class PersistentService<OBJ extends ApiObject> {
+public abstract class PersistentService<READ extends ApiReadObject, WRITE extends ApiWriteObject> {
 
-  public final OBJ create(OBJ obj) {
-    Optional<String> writeErr = obj.fetchWriteError();
+  public final String upsert(WRITE toUpsert) {
+    Optional<String> writeErr = toUpsert.fetchWriteError();
     if (writeErr.isPresent()) {
       throw new InvalidApiObjectException(writeErr.get());
     }
-    return createObject(obj);
+    return upsertObject(toUpsert);
   }
 
-  public final Optional<OBJ> get(String key) {
-    Optional<OBJ> obj = getObject(key);
-    Optional<String> readErr = obj.flatMap(ApiObject::fetchReadError);
+  public final Optional<READ> get(String key) {
+    Optional<READ> obj = getObject(key);
+    Optional<String> readErr = obj.flatMap(ApiReadObject::fetchReadError);
     if (readErr.isPresent()) {
-      if (readErr.isPresent()) {
-        throw new InvalidApiObjectException(readErr.get());
-      }
+      throw new InvalidApiObjectException(readErr.get());
     }
     return obj;
   }
 
   /**
-   * Service level logic to create an object that has been validated.
+   * Service level logic to upsert an object that has been validated.
+   * @return A string representing the key.
    */
-  protected abstract OBJ createObject(OBJ obj);
+  protected abstract String upsertObject(WRITE toUpsert);
 
   /**
    * Service level logic to get an object to be validated.
    */
-  protected abstract Optional<OBJ> getObject(String key);
+  protected abstract Optional<READ> getObject(String key);
 }

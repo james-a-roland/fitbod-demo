@@ -1,6 +1,6 @@
 package com.fitbod.jroland.config;
 
-import com.fitbod.jroland.api.UserApi;
+import com.fitbod.jroland.api.user.UserWrite;
 import com.fitbod.jroland.exception.UserExistsException;
 import com.fitbod.jroland.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +16,12 @@ public class BootupListener implements ApplicationListener<ContextRefreshedEvent
 
   @Override
   public void onApplicationEvent(ContextRefreshedEvent event) {
-    UserApi defaultUser = new UserApi();
+    UserWrite defaultUser = new UserWrite();
     defaultUser.setEmail("jr@test.com");
     defaultUser.setPassword("password1");
     try {
 //      Create a non-default user while debugging to avoid re-registration.
-//      userService.create(defaultUser);
+      userService.upsert(defaultUser);
     } catch (UserExistsException e) {
     }
   }
