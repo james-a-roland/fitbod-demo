@@ -4,6 +4,7 @@ import com.fitbod.jroland.persistence.model.Workout;
 import com.fitbod.jroland.util.JsonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.Transaction;
 
@@ -29,16 +30,31 @@ public class RedisWorkoutRepo {
     String emailKey = EMAIL_TO_WORKOUTS_KEY_PREFIX + workout.getEmail();
     String workoutJson = JsonUtil.toJson(workout);
 
-    Transaction atomic = jedisPool.getResource().multi();
-    atomic.set(idKey, workoutJson);
-    atomic.zadd(emailKey, workout.getDate(), workoutJson);
-    atomic.exec();
+    Jedis jedis = jedisPool.getResource();
+    try {
+      Transaction atomic = jedis.multi();
+      atomic.set(idKey, workoutJson);
+      atomic.zadd(emailKey, workout.getDate(), workoutJson);
+      atomic.exec();
+    } finally {
+      if (jedis != null) {
+        jedis.close();
+      }
+    }
   }
 
   public Optional<Workout> get(String key) {
     String idKey = ID_TO_WORKOUT_KEY_PREFIX + key;
-    return Optional.ofNullable(jedisPool.getResource().get(idKey))
-            .map(json -> JsonUtil.fromJson(json, Workout.class));
+    Jedis jedis = jedisPool.getResource();
+    try {
+      return Optional.ofNullable(jedisPool.getResource().get(idKey))
+              .map(json -> JsonUtil.fromJson(json, Workout.class));
+    } finally {
+      if (jedis != null) {
+        jedis.close();
+      }
+      jedis.close();
+    }
   }
 
   public void delete(String key) {
@@ -47,17 +63,27 @@ public class RedisWorkoutRepo {
     Workout workout = JsonUtil.fromJson(workoutJson, Workout.class);
     String emailKey = EMAIL_TO_WORKOUTS_KEY_PREFIX + workout.getEmail();
 
-    Transaction atomic = jedisPool.getResource().multi();
-    atomic.del(idKey);
-    atomic.zrem(emailKey, workoutJson);
-    atomic.exec();
+    Jedis jedis = jedisPool.getResource();
+    try {
+      Transaction atomic = jedis.multi();
+      atomic.del(idKey);
+      atomic.zrem(emailKey, workoutJson);
+      atomic.exec();
+    } finally {
+      jedis.close();
+    }
   }
 
   public List<Workout> findByEmail(String email, int start, int count) {
     String emailKey = EMAIL_TO_WORKOUTS_KEY_PREFIX + email;
-    return jedisPool.getResource().zrevrange(emailKey, start, count).stream()
-            .map(json -> JsonUtil.fromJson(json, Workout.class))
-            .collect(Collectors.toList());
+    Jedis jedis = jedisPool.getResource();
+    try {
+      return jedis.zrevrange(emailKey, start, count).stream()
+              .map(json -> JsonUtil.fromJson(json, Workout.class))
+              .collect(Collectors.toList());
+    } finally {
+      jedis.close();
+    }
   }
 
 }
