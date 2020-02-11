@@ -74,13 +74,23 @@ public class RedisWorkoutRepo {
     }
   }
 
-  public List<Workout> findByEmail(String email, int start, int count) {
+  public List<Workout> findByEmail(String email, int start, int end) {
     String emailKey = EMAIL_TO_WORKOUTS_KEY_PREFIX + email;
     Jedis jedis = jedisPool.getResource();
     try {
-      return jedis.zrevrange(emailKey, start, count).stream()
+      return jedis.zrevrange(emailKey, start, end).stream()
               .map(json -> JsonUtil.fromJson(json, Workout.class))
               .collect(Collectors.toList());
+    } finally {
+      jedis.close();
+    }
+  }
+
+  public long getTotalWorkouts(String email) {
+    String emailKey = EMAIL_TO_WORKOUTS_KEY_PREFIX + email;
+    Jedis jedis = jedisPool.getResource();
+    try {
+      return jedis.zcount(emailKey, 0, Double.MAX_VALUE);
     } finally {
       jedis.close();
     }

@@ -46,17 +46,19 @@ public class WorkoutRestController {
 
   /**
    * Find workouts associated with currently logged in user.
+   * @param start The start index of the element to retrieve (inclusive).
+   * @param end The end index of the element to retrieve (inclusive).
    */
   @GetMapping
   public ResponseEntity<Collection<WorkoutApi>> getWorkouts(Authentication authentication,
                                                             @RequestParam(defaultValue = "0") int start,
-                                                            @RequestParam(defaultValue = "10") int count) {
+                                                            @RequestParam(defaultValue = "9") int end) {
     if (!AuthenticationUtil.isAuthenticated(authentication)) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
     String email = AuthenticationUtil.getUserEmail(authentication).get();
-    List<WorkoutApi> workouts = workoutService.getWorkoutsForEmail(email, start, count);
+    List<WorkoutApi> workouts = workoutService.getWorkoutsForEmail(email, start, end);
     return ResponseEntity.ok(workouts);
   }
 

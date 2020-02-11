@@ -3,16 +3,12 @@ package com.fitbod.jroland.persistence.model;
 import com.fitbod.jroland.api.WorkoutApi;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 import java.util.UUID;
 
-@Document
 public class Workout implements PersistentObj {
 
-  @Id
   @Getter
   private String id;
 

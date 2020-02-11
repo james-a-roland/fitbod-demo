@@ -33,12 +33,16 @@ public class WorkoutService extends PersistentService<WorkoutApi> {
     redisWorkoutRepo.delete(key);
   }
 
-  public List<WorkoutApi> getWorkoutsForEmail(String email, int start, int count) {
-    return redisWorkoutRepo.findByEmail(email, start, count)
+  public List<WorkoutApi> getWorkoutsForEmail(String email, int start, int end) {
+    return redisWorkoutRepo.findByEmail(email, start, end)
             .stream()
             .map(Workout::toApi)
             .filter(workout -> !workout.fetchReadError().isPresent())
             .collect(Collectors.toList());
+  }
+
+  public long getTotalWorkoutsForEmail(String email) {
+    return redisWorkoutRepo.getTotalWorkouts(email);
   }
 
 }

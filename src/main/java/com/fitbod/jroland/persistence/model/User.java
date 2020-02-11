@@ -3,16 +3,12 @@ package com.fitbod.jroland.persistence.model;
 import com.fitbod.jroland.api.UserApi;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-@Document
 public class User implements PersistentObj {
 
   @Getter
   @Setter
-  @Id
   private String email;
 
   @Getter

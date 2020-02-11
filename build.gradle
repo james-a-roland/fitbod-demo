@@ -32,7 +32,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.data:spring-data-mongodb'
     implementation 'org.springframework.security:spring-security-test'
     implementation 'redis.clients:jedis:2.8.1'
     implementation("com.google.guava:guava:28.2-jre")
