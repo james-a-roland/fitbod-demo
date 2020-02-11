@@ -5,6 +5,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.JedisShardInfo;
+import redis.clients.jedis.Protocol;
 
 import java.net.URI;
 import java.util.Optional;
@@ -16,11 +20,19 @@ public class JedisConfig {
   private Environment environment;
 
   @Bean
-  Jedis getJedis() {
-    Optional<URI> jedisURI = Optional.ofNullable(environment.getProperty("REDISTOGO_URL")).map(URI::create);
-    String host = jedisURI.map(URI::getHost).orElse(environment.getProperty("fitbod.default.redis.host"));
-    int port = jedisURI.map(URI::getPort).orElse(Integer.valueOf(environment.getProperty("fitbod.default.redis.port")));
-    Jedis jedis = new Jedis(host, port);
-    return jedis;
+  JedisPool getJedisPool() {
+    Optional<URI> jedisUriOptional = Optional.ofNullable(environment.getProperty("REDISTOGO_URL")).map(URI::create);
+    if (jedisUriOptional.isPresent()) {
+      URI jedisURI = jedisUriOptional.get();
+      return new JedisPool(new JedisPoolConfig(),
+                           jedisURI.getHost(),
+                           jedisURI.getPort(),
+                           Protocol.DEFAULT_TIMEOUT,
+                           jedisURI.getUserInfo().split(":", 2)[1]);
+    } else {
+      String host = environment.getProperty("fitbod.default.redis.host");
+      int port = Integer.valueOf(environment.getProperty("fitbod.default.redis.port"));
+      return new JedisPool(host, port);
+    }
   }
 }

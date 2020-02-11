@@ -13,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.thymeleaf.util.StringUtils;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -26,9 +27,9 @@ public class TestUserService {
   public void setup() throws IOException {
     redisServer = RedisServer.newRedisServer();
     redisServer.start();
-    Jedis jedis = new Jedis(redisServer.getHost(), redisServer.getBindPort());
 
-    RedisUserRepo redisUserRepo = new RedisUserRepo(jedis);
+    JedisPool jedisPool = new JedisPool(redisServer.getHost(), redisServer.getBindPort());
+    RedisUserRepo redisUserRepo = new RedisUserRepo(jedisPool);
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(7);
     userService = new UserService(redisUserRepo, passwordEncoder);
   }
