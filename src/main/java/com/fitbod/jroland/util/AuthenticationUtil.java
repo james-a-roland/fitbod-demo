@@ -11,6 +11,12 @@ public class AuthenticationUtil {
     return authentication != null && authentication.isAuthenticated();
   }
 
+  public static void verifyAuthenticated(Authentication authentication) {
+    if (!isAuthenticated(authentication)) {
+      throw new IllegalStateException("Unauthenticated users cannot access this resource.");
+    }
+  }
+
   public static Optional<String> getUserEmail(Authentication authentication) {
     if (isAuthenticated(authentication) && !StringUtils.isEmpty(authentication.getName())) {
       return Optional.ofNullable(authentication.getName());
@@ -18,4 +24,8 @@ public class AuthenticationUtil {
     return Optional.empty();
   }
 
+  public static String getUserEmailUnsafe(Authentication authentication) {
+    verifyAuthenticated(authentication);
+    return getUserEmail(authentication).get();
+  }
 }

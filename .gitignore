@@ -25,7 +25,6 @@
 /dist/
 /nbdist/
 /.nb-gradle/
-docs/gradle-getting-started
 docs/tmp
 .vscode/
 

@@ -8,12 +8,15 @@ import com.github.fppt.jedismock.RedisServer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.thymeleaf.util.StringUtils;
 import redis.clients.jedis.JedisPool;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -89,28 +92,30 @@ public class TestWorkoutService {
   }
 
   /**
-   * The mock Jedis client doesn't support these operations, so we'll have to test them manually for now.
+   * The mock Jedis server does not support these operations out of the box,
+   * so these tests are disabled.
    */
-//  @Test()
-//  public void testGetEmailsForUser() {
-//    String myEmail = "email1@fittestbod.com";
-//    WorkoutWrite write1 = getFullWorkoutWrite();
-//    workoutService.upsert(write1);
-//
-//    int numWorkouts = 5;
-//    String theirEmail = "email2@fitterestbod.com";
-//    List<WorkoutWrite> theirWorkoutsWrites = new ArrayList<>();
-//    for (int i = 0; i < numWorkouts; i++) {
-//      WorkoutWrite secondEmailWrite = getFullWorkoutWrite();
-//      secondEmailWrite.setEmail(theirEmail);
-//      workoutService.upsert(secondEmailWrite);
-//    }
-//
-//    List<WorkoutRead> myWorkouts = workoutService.getWorkoutsForEmail(myEmail, 0, 2);
-//    List<WorkoutRead> theirWorkouts = workoutService.getWorkoutsForEmail(myEmail, 0, 2);
-//    Assert.assertEquals(myWorkouts.size(), 1);
-//    Assert.assertEquals(theirWorkouts.size(), 3);
-//  }
+  @Ignore
+  @Test()
+  public void testGetEmailsForUser() {
+    String myEmail = "email1@fittestbod.com";
+    WorkoutWrite write1 = getFullWorkoutWrite();
+    workoutService.upsert(write1);
+
+    int numWorkouts = 5;
+    String theirEmail = "email2@fitterestbod.com";
+    List<WorkoutWrite> theirWorkoutsWrites = new ArrayList<>();
+    for (int i = 0; i < numWorkouts; i++) {
+      WorkoutWrite secondEmailWrite = getFullWorkoutWrite();
+      secondEmailWrite.setEmail(theirEmail);
+      workoutService.upsert(secondEmailWrite);
+    }
+
+    List<WorkoutRead> myWorkouts = workoutService.getWorkoutsForEmail(myEmail, 0, 2);
+    List<WorkoutRead> theirWorkouts = workoutService.getWorkoutsForEmail(myEmail, 0, 2);
+    Assert.assertEquals(myWorkouts.size(), 1);
+    Assert.assertEquals(theirWorkouts.size(), 3);
+  }
   @Test(expected = InvalidApiObjectException.class)
   public void testInvalidWorkoutWrite() {
     WorkoutWrite write = new WorkoutWrite();

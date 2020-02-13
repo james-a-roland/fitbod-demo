@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout (~{::body},'workout')}">
+
+<body>
+
+<div class="container">
+    <h1>Edit Workout (Duration only)</h1>
+    <form action="/workout" th:object="${object}" method="POST" enctype="utf8">
+        <div>
+            <label>ID</label>
+            <input th:field="*{id}" readonly="true"/>
+            <p th:each="error : ${#fields.errors('id')}"
+               th:text="${error}">Validation error</p>
+        </div>
+        <div>
+            <label>Date</label>
+            <input type="date" th:field="*{date}" readonly="true"/>
+            <p th:each="error : ${#fields.errors('date')}"
+               th:text="${error}">Validation error</p>
+        </div>
+        <div>
+            <label>Duration</label>
+            <input type="number" th:field="*{duration}"/>
+            <p th:each="error : ${#fields.errors('duration')}"
+               th:text="${error}">Validation error</p>
+        </div>
+        <button type="submit">Add</button>
+    </form>
+</div>
+
+</body>
+</html>

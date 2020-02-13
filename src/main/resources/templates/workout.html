@@ -5,7 +5,7 @@
 
 <div class="container">
     <h1>Add a workout</h1>
-    <form action="/workout" th:object="${newObject}" method="POST" enctype="utf8">
+    <form action="/workout" th:object="${object}" method="POST" enctype="utf8">
         <div>
             <label>Date</label>
             <input type="date" th:field="*{date}"/>
@@ -30,31 +30,15 @@
             <th scope="col">ID</th>
             <th scope="col">Date</th>
             <th scope="col">Duration</th>
-            <th scope="col">Updated Duration</th>
-            <th scope="col"></th>
         </tr>
         </thead>
         <tbody>
         <th:block th:each="record : ${records}">
             <tr>
-                <script th:inline="javascript">
-                function updateDuration() {
-                    var xhr = new XMLHttpRequest();
-                    var input = {}
-                    input['id'] = [[${record.id}]]
-                    input['date'] = [[${record.date}]]
-                    input['duration'] = Math.floor(Math.random() * 10)
-                    xhr.open("POST", "/api/workout", true);
-                    xhr.setRequestHeader('Content-Type', 'application/json');
-                    xhr.send(JSON.stringify(input))
-                    location.reload()
-                }
-                </script>
                 <td th:text="${record.id}"></td>
                 <td th:text="${record.date}"></td>
                 <td th:text="${record.duration}"></td>
-                <td><input type="number" th:id="${record.id}"></td>
-                <td><button type="submit" onclick="updateDuration()">Update</button></td>
+                <td><a th:href="'/workout/' + ${record.id}">Edit</a></td>
                 <br>
             </tr>
         </th:block>

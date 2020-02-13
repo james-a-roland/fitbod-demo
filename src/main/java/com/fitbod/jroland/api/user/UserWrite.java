@@ -43,4 +43,9 @@ public class UserWrite extends ApiWriteObject<User> {
   public String getKey() {
     return email;
   }
+
+  @Override
+  public String toString() {
+    return ("Email: " + email + " Password: " + password);
+  }
 }

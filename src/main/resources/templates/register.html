@@ -4,13 +4,13 @@
 <body>
 
 <div class="container">
-    <span th:if="${username}">
-        <h3>Successfully created <span th:text="${username}"></span></h3>
+    <span th:if="${user}">
+        <h3>Successfully created <span th:text="${user}"></span></h3>
     </span>
 </div>
 <div class="container">
     <h1>New user registration</h1>
-    <form action="/register" th:object="${newObject}" method="POST" enctype="utf8">
+    <form action="/register" th:object="${object}" method="POST" enctype="utf8">
         <div>
             <label>Email</label>
             <input type="email" th:field="*{email}"/>

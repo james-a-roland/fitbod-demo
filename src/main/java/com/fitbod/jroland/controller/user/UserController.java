@@ -2,7 +2,6 @@ package com.fitbod.jroland.controller.user;
 
 import com.fitbod.jroland.api.user.UserWrite;
 import com.fitbod.jroland.service.UserService;
-import com.fitbod.jroland.util.ControllerUtil;
 import com.fitbod.jroland.util.RouteUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,14 +18,14 @@ public class UserController {
 
   @GetMapping(RouteUtil.REGISTER)
   public String showRegistrationForm(Model model) {
-    ControllerUtil.writeEmptyObjectToModel(new UserWrite(), model);
+    model.addAttribute("object", new UserWrite());
     return RouteUtil.getTemplateForRoute(RouteUtil.REGISTER);
   }
 
   @PostMapping(RouteUtil.REGISTER)
   public String registerUserAccount(@ModelAttribute("user") UserWrite user, Model model) {
     userService.upsert(user);
-    ControllerUtil.writeUserToModel(user.getKey(), model);
+    model.addAttribute("user", user.getEmail());
     return showRegistrationForm(model);
   }
 
